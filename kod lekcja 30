@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tekstNaglowek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dodaj nowy wydatek"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/poleNazwaWydatku"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:hint="Nazwa wydatku"
+        app:layout_constraintTop_toBottomOf="@id/tekstNaglowek"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/poleKwotaWydatku"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Kwota, np. 15.50"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/poleNazwaWydatku"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinnerKategoria"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:entries="@array/kategorie_wydatkow"
+        app:layout_constraintTop_toBottomOf="@id/poleKwotaWydatku"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/przyciskZapisz"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/zapisz_wydatek"
+        app:layout_constraintTop_toBottomOf="@id/spinnerKategoria"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+<resources>
+    <string name="app_name">MenedzerWydatkow</string>
+    <string name="zapisz_wydatek">Zapisz wydatek</string>
+
+    <string-array name="kategorie_wydatkow">
+        <item>Jedzenie</item>
+        <item>Transport</item>
+        <item>Rachunki</item>
+        <item>Rozrywka</item>
+        <item>Inne</item>
+    </string-array>
+</resources>
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private EditText poleNazwaWydatku;
+    private EditText poleKwotaWydatku;
+    private Spinner spinnerKategoria;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        poleNazwaWydatku = findViewById(R.id.poleNazwaWydatku);
+        poleKwotaWydatku = findViewById(R.id.poleKwotaWydatku);
+        spinnerKategoria = findViewById(R.id.spinnerKategoria);
+        Button przyciskZapisz = findViewById(R.id.przyciskZapisz);
+
+        przyciskZapisz.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        String nazwa = poleNazwaWydatku.getText().toString().trim();
+        String kwotaTekst = poleKwotaWydatku.getText().toString().trim();
+        String kategoria = spinnerKategoria.getSelectedItem().toString();
+
+        if (nazwa.isEmpty() || kwotaTekst.isEmpty()) {
+            Toast.makeText(this, "Uzupełnij nazwę i kwotę.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            String kwotaDoParsowania = kwotaTekst.replace(',', '.');
+            double kwota = Double.parseDouble(kwotaDoParsowania);
+            Wydatek wydatek = new Wydatek(nazwa, kwota, kategoria);
+
+            Toast.makeText(
+                    this,
+                    "Zapisano: " + wydatek.getNazwa() + " za " + wydatek.getKwota() + " zł",
+                    Toast.LENGTH_SHORT
+            ).show();
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Kwota musi być poprawną liczbą.", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+
+public class Wydatek {
+    private final String nazwa;
+    private final double kwota;
+    private final String kategoria;
+
+    public Wydatek(String nazwa, double kwota, String kategoria) {
+        this.nazwa = nazwa;
+        this.kwota = kwota;
+        this.kategoria = kategoria;
+    }
+
+    public String getNazwa() {
+        return nazwa;
+    }
+
+    public double getKwota() {
+        return kwota;
+    }
+
+    public String getKategoria() {
+        return kategoria;
+    }
+}
